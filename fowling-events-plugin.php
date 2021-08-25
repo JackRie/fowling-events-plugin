@@ -7,7 +7,7 @@
  * Requires at least: 5.2
  * Requires PHP:      7.2
  * Author:            Fairly Painless
- * Author URI:        https://github.com/jackrie
+ * Author URI:        https://github.com/JackRie/fowling-events-plugin
  * License:           GPL v2 or later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       fep

@@ -124,11 +124,14 @@ add_action( 'fep_event_check_daily', 'fep_event_check' );
 /**
  * CREATE SHORTCODE THAT RETURNS THE 5 SOONEST UPCOMING EVENTS
  */
-function fep_create_shortcode_events() {
+function fep_create_shortcode_events($atts) {
+    $atts = shortcode_atts( array(
+        'number' => "-1"
+    ), $atts );
 	$today = date('Ymd');
     $args = array(
         'post_type' => 'event',
-        'post_per_page' => 5,
+        'posts_per_page' => $atts['number'],
         'orderby' => 'start_date',
         'order' => 'ASC',
         'meta_query' => array(

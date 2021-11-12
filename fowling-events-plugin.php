@@ -74,23 +74,23 @@ register_activation_hook(__FILE__, 'fep_event_check_schedule');
 
 function fep_event_check_schedule() {
 
-    $timestamp = wp_next_scheduled('fep_event_check_hourly');
+    $timestamp = wp_next_scheduled('fep_event_check_daily');
 
     if(!$timestamp) {
-        wp_schedule_event(time(), 'hourly', 'fep_event_check_hourly');
+        wp_schedule_event(time(), 'daily', 'fep_event_check_daily');
     }
 
 }
 
-add_action( 'fep_event_check_hourly', 'fep_event_check' );
+add_action( 'fep_event_check_daily', 'fep_event_check' );
 
 /**
  * REMOVE CRON JOB ON PLUGIN DEACTIVATION
  */
-register_deactivation_hook( __FILE__, 'fep_remove_hourly_backup_schedule' );
+register_deactivation_hook( __FILE__, 'fep_remove_daily_backup_schedule' );
 
-function fep_remove_hourly_backup_schedule(){
-  wp_clear_scheduled_hook( 'fep_event_check_hourly' );
+function fep_remove_daily_backup_schedule(){
+  wp_clear_scheduled_hook( 'fep_event_check_daily' );
 }
 
 /**
@@ -99,7 +99,8 @@ function fep_remove_hourly_backup_schedule(){
 function fep_event_check() {
 	// GET ALL EVENTS POSTS
 	$args = array(
-		'post_type' => 'event'
+        'post_type'   => 'event',
+        'numberposts' => -1
 	);
 	$event_posts = get_posts($args);
 	// LOOP THROUGH ALL EVENTS POSTS

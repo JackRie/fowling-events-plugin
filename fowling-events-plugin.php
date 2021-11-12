@@ -68,6 +68,32 @@ function fep_load_scripts($hook) {
 add_action( 'admin_enqueue_scripts', 'fep_load_scripts' );
 
 /**
+ * SETUP CRON JOB TO RUN DAILY AND FIRE EVENT CHECK FUNCTION
+ */
+register_activation_hook(__FILE__, 'fep_event_check_schedule');
+
+function fep_event_check_schedule() {
+
+    $timestamp = wp_next_scheduled('fep_event_check_hourly');
+
+    if(!$timestamp) {
+        wp_schedule_event(time(), 'hourly', 'fep_event_check_hourly');
+    }
+
+}
+
+add_action( 'fep_event_check_hourly', 'fep_event_check' );
+
+/**
+ * REMOVE CRON JOB ON PLUGIN DEACTIVATION
+ */
+register_deactivation_hook( __FILE__, 'fep_remove_hourly_backup_schedule' );
+
+function fep_remove_hourly_backup_schedule(){
+  wp_clear_scheduled_hook( 'fep_event_check_hourly' );
+}
+
+/**
  * EVENT CHECK FUNCTION
  */
 function fep_event_check() {
@@ -86,7 +112,7 @@ function fep_event_check() {
 		$updated_recur_date = date('Ymd', strtotime('next ' . $recur_day));
 		$today = date('Ymd');
 		// CHECK IF POST IS A RECURRING POST IF START DATE IS NOT EQUAL TO TODAY'S DATE AND
-		// START DATE IS LESS THAN (IN THE PAST) THE NEXT DATE THIS EVENT IS SET TO RECUR
+		// START DATE IS LESS THAN (IN THE PAST) THAN THE NEXT DATE THIS EVENT IS SET TO RECUR
 		if ( $event_type == 'recur' && $start_date != $today && $start_date < $updated_recur_date ) {
 			// UPDATE THE START DATE TO THE NEXT DATE THIS EVENT IS SET TO RECUR
 			update_field('field_60f8548e23cef', $updated_recur_date, $post->ID );
@@ -103,23 +129,6 @@ function fep_event_check() {
  */
 add_action('wp_ajax_fep_event_check', 'fep_event_check');
 add_action('wp_ajax_nopriv_fep_event_check', 'fep_event_check');
-
-/**
- * SETUP CRON JOB TO RUN DAILY AND FIRE EVENT CHECK FUNCTION
- */
-add_action('init', 'fep_event_check_schedule');
-
-function fep_event_check_schedule() {
-
-    $timestamp = wp_next_scheduled('fep_event_check_daily');
-
-    if(!$timestamp) {
-        wp_schedule_event(time(), 'daily', 'fep_event_check_daily');
-    }
-
-}
-
-add_action( 'fep_event_check_daily', 'fep_event_check' );
 
 /**
  * CREATE SHORTCODE THAT RETURNS THE 5 SOONEST UPCOMING EVENTS
